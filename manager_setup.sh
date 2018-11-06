@@ -3,7 +3,9 @@
 # Source: https://docs.docker.com/install/linux/docker-ee/ubuntu/
 # Source: https://docs.docker.com/ee/end-to-end-install/#step-2-install-universal-control-plane
 
-if [ ! -f "docker_installed" ]; then
+DOCKER_INSTALL_STATUS=$(curl -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/attributes/docker-install-status)
+
+if [ "${DOCKER_INSTALL_STATUS}" = "pending" ]; then
 
 	ZONE=$(curl -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/zone)
 
@@ -46,7 +48,5 @@ if [ ! -f "docker_installed" ]; then
 	gcloud compute instances add-metadata $(hostname) --metadata docker-install-status=finished --zone $ZONE
 	
 	rm -f docker.lic
-	
-	touch "docker_installed"
 	
 fi
