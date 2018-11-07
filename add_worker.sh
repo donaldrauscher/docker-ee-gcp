@@ -6,7 +6,7 @@ DOCKER_EE_LIC="gs://djr-data/docker-ee/docker_subscription.lic"
 REGION=$(gcloud config get-value compute/region)
 ZONE=$(gcloud config get-value compute/zone)
 
-NUM_WORKERS=$(gcloud compute instance-groups list-instances swarm --filter "NAME~swarm-w[0-9]*" --format "table[no-heading](NAME)" | wc -l)
+NUM_WORKERS=$(gcloud compute instance-groups list-instances swarm --filter "NAME~swarm-w[0-9]+" --format "table[no-heading](NAME)" | wc -l)
 ((NUM_WORKERS++))
 
 NEW_WORKER="swarm-w${NUM_WORKERS}"

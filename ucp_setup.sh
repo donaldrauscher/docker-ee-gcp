@@ -31,19 +31,19 @@ if [ "${DOCKER_INSTALL_STATUS}" = "pending" ]; then
 
 	gsutil cp $DOCKER_EE_LIC docker.lic
 		
-	docker container run --rm --name ucp \
+	sudo docker container run --rm --name ucp \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		docker/ucp:3.0.6 install \
 		--admin-username admin \
 		--admin-password password \
 		--host-address $MANAGER_INTERNAL_IP \
-		--external-service-lb $MANAGER_EXTERNAL_IP \
+		--san $MANAGER_EXTERNAL_IP \
 		--license $(cat docker.lic) \
 		--debug
 
 	gcloud compute project-info add-metadata --metadata swarm-worker-token=$(docker swarm join-token -q worker)
 	gcloud compute project-info add-metadata --metadata swarm-manager-token=$(docker swarm join-token -q manager)
-	gcloud compute project-info add-metadata --metadata swarm-manager-ip=$MANAGER_INTERNAL_IP
+	gcloud compute project-info add-metadata --metadata swarm-ucp-ip=$MANAGER_INTERNAL_IP
 				
 	gcloud compute instances add-metadata $(hostname) --metadata docker-install-status=finished --zone $ZONE
 	

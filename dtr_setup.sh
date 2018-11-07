@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # Source: https://docs.docker.com/install/linux/docker-ee/ubuntu/
-# Source: https://docs.docker.com/ee/ucp/admin/configure/join-nodes/join-linux-nodes-to-cluster/
+# Source: https://docs.docker.com/ee/dtr/admin/install/
 
 DOCKER_INSTALL_STATUS=$(curl -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/attributes/docker-install-status)
 
 if [ "${DOCKER_INSTALL_STATUS}" = "pending" ]; then
 
 	ZONE=$(curl -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/zone)
-	
+
 	DOCKER_EE_URL=$(curl -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/attributes/docker-ee-url)
 	
 	SWARM_UCP_IP=$(curl -H 'Metadata-Flavor: Google' http://metadata/computeMetadata/v1/project/attributes/swarm-ucp-ip)
@@ -28,11 +28,21 @@ if [ "${DOCKER_INSTALL_STATUS}" = "pending" ]; then
 	
 	echo "Join Swarm..."
 
-	sudo docker swarm join --token $SWARM_TOKEN $SWARM_UCP_IP:2377
+	sudo docker swarm join --token $SWARM_TOKEN $SWARM_UCP_IP:2377	
 	sleep 60
 
-	gcloud compute ssh swarm-m --zone $ZONE --command="sudo docker node update --label-add com.docker.ucp.orchestrator.kubernetes=true $(hostname)"
-	gcloud compute ssh swarm-m --zone $ZONE --command="sudo docker node update --label-rm com.docker.ucp.orchestrator.swarm $(hostname)"
+	echo "Install DTR..."
+	
+	sudo docker container run --rm --name dtr \
+		docker/dtr:2.5.0 install \
+		--ucp-node $(hostname) \
+		--ucp-url $SWARM_UCP_IP \
+		--ucp-username admin \
+		--ucp-password password \
+		--ucp-insecure-tls \
+		--debug
+		
+	gcloud compute ssh swarm-m --zone $ZONE --command="sudo docker node update --availability pause $(hostname)"
 	
 	gcloud compute instances add-metadata $(hostname) --metadata docker-install-status=finished --zone $ZONE
 	
