@@ -23,7 +23,7 @@ gcloud beta compute instances create swarm-m \
     --boot-disk-size "50" --boot-disk-type "pd-ssd" \
     --maintenance-policy "TERMINATE" \
     --metadata docker-install-status="pending",startup-script="$(cat ucp_setup.sh)",docker-ee-url="${DOCKER_EE_URL}" \
-    --tags "http-server,https-server" \
+    --tags "http-server,https-server,kubectl" \
     --scopes "cloud-platform"
 
 gcloud compute instance-groups unmanaged create swarm --zone "${ZONE}"
