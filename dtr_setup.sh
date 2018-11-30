@@ -13,6 +13,7 @@ if [ "${DOCKER_INSTALL_STATUS}" = "pending" ]; then
 	
 	UCP_IP=$(curl -H 'Metadata-Flavor: Google' http://metadata/computeMetadata/v1/project/attributes/swarm-ucp-ip)
 	UCP_URL=$(curl -H 'Metadata-Flavor: Google' http://metadata/computeMetadata/v1/project/attributes/swarm-ucp-url)
+	DTR_URL=$(curl -H 'Metadata-Flavor: Google' http://metadata/computeMetadata/v1/project/attributes/swarm-dtr-url)
 	WORKER_TOKEN=$(curl -H 'Metadata-Flavor: Google' http://metadata/computeMetadata/v1/project/attributes/swarm-worker-token)
 	
 	echo "Install Docker EE..."
@@ -36,6 +37,7 @@ if [ "${DOCKER_INSTALL_STATUS}" = "pending" ]; then
 	
 	sudo docker container run --rm --name dtr \
 		docker/dtr:2.5.0 install \
+		--dtr-external-url "https://${DTR_URL}" \
 		--ucp-node $(hostname) \
 		--ucp-url "https://${UCP_URL}" \
 		--ucp-username admin \

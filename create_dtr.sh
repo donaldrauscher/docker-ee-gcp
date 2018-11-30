@@ -1,5 +1,7 @@
 #!/bin/bash
 
+DTR_URL="dtr.donaldrauscher.com"
+
 DOCKER_EE_URL="https://storebits.docker.com/ee/ubuntu/sub-bb5613f5-4248-4a2e-bc1f-c3f968378620"
 DOCKER_EE_LIC="gs://djr-data/docker-ee/docker_subscription.lic"
 
@@ -11,6 +13,8 @@ if [ -z "$DTR_STATIC" ]; then
     gcloud compute addresses create swarm-dtr --region $REGION
 fi
 DTR_IP=$(gcloud compute addresses describe swarm-dtr --region $REGION --format "value(ADDRESS)")
+
+gcloud compute project-info add-metadata --metadata swarm-dtr-url=$DTR_URL
 
 gcloud beta compute instances create swarm-w-dtr \
     --address "${DTR_IP}" --zone "${ZONE}" \

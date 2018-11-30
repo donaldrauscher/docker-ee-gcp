@@ -1,6 +1,7 @@
 #!/bin/bash
 
 UCP_URL="ucp.donaldrauscher.com"
+
 DOCKER_EE_URL="https://storebits.docker.com/ee/ubuntu/sub-bb5613f5-4248-4a2e-bc1f-c3f968378620"
 DOCKER_EE_LIC="gs://djr-data/docker-ee/docker_subscription.lic"
 
