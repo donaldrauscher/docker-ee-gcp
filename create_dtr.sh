@@ -6,14 +6,14 @@ DOCKER_EE_LIC="gs://djr-data/docker-ee/docker_subscription.lic"
 REGION=$(gcloud config get-value compute/region)
 ZONE=$(gcloud config get-value compute/zone)
 
-SWARM_STATIC=$(gcloud compute addresses list --filter "NAME=swarm-dtr" --format "table[no-heading](NAME)")
-if [ -z "$SWARM_STATIC" ]; then
+DTR_STATIC=$(gcloud compute addresses list --filter "NAME=swarm-dtr" --format "table[no-heading](NAME)")
+if [ -z "$DTR_STATIC" ]; then
     gcloud compute addresses create swarm-dtr --region $REGION
 fi
-SWARM_IP=$(gcloud compute addresses describe swarm-dtr --region $REGION --format "value(ADDRESS)")
+DTR_IP=$(gcloud compute addresses describe swarm-dtr --region $REGION --format "value(ADDRESS)")
 
 gcloud beta compute instances create swarm-w-dtr \
-    --address "${SWARM_IP}" --zone "${ZONE}" \
+    --address "${DTR_IP}" --zone "${ZONE}" \
     --machine-type "n1-standard-4" \
     --image-family "ubuntu-1604-lts" --image-project "ubuntu-os-cloud" \
     --boot-disk-size "100" --boot-disk-type "pd-ssd" \
@@ -24,13 +24,13 @@ gcloud beta compute instances create swarm-w-dtr \
 
 gcloud compute instance-groups unmanaged add-instances swarm --instances swarm-w-dtr --zone "${ZONE}"
 	
-SWARM_STATUS=$(gcloud compute instances describe swarm-w-dtr --zone $ZONE | awk '/docker-install-status/{getline;print $2;}' | awk 'FNR ==1 {print $1}')
-while [ "$SWARM_STATUS" = "pending" ]; do
-	echo $SWARM_STATUS
+DTR_STATUS=$(gcloud compute instances describe swarm-w-dtr --zone $ZONE | awk '/docker-install-status/{getline;print $2;}' | awk 'FNR ==1 {print $1}')
+while [ "$DTR_STATUS" = "pending" ]; do
+	echo $DTR_STATUS
 	sleep 5
-	SWARM_STATUS=$(gcloud compute instances describe swarm-w-dtr --zone $ZONE | awk '/docker-install-status/{getline;print $2;}' | awk 'FNR ==1 {print $1}')
+	DTR_STATUS=$(gcloud compute instances describe swarm-w-dtr --zone $ZONE | awk '/docker-install-status/{getline;print $2;}' | awk 'FNR ==1 {print $1}')
 done
-echo $SWARM_STATUS
+echo $DTR_STATUS
 
 #gcloud compute ssh swarm-m --command="sudo docker node update --availability pause swarm-w-dtr"
 #gcloud compute ssh swarm-m --command="sudo docker node update --label-rm com.docker.ucp.orchestrator.kubernetes swarm-w-dtr"

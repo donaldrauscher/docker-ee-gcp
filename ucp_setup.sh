@@ -15,6 +15,8 @@ if [ "${DOCKER_INSTALL_STATUS}" = "pending" ]; then
 	MANAGER_INTERNAL_IP=$(curl -H "Metadata-Flavor: Google" http://metadata/computeMetadata/v1/instance/network-interfaces/0/ip)
 	MANAGER_EXTERNAL_IP=$(curl -H "Metadata-Flavor: Google" http://metadata/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip)
 
+	UCP_URL=$(curl -H 'Metadata-Flavor: Google' http://metadata/computeMetadata/v1/project/attributes/swarm-ucp-url)
+
 	echo "Install Docker EE..."
 	
 	sudo apt-get update
@@ -38,13 +40,14 @@ if [ "${DOCKER_INSTALL_STATUS}" = "pending" ]; then
 		--admin-password password \
 		--host-address $MANAGER_INTERNAL_IP \
 		--san $MANAGER_EXTERNAL_IP \
+		--san $UCP_URL \
 		--license $(cat docker.lic) \
 		--debug
 
 	gcloud compute project-info add-metadata --metadata swarm-worker-token=$(docker swarm join-token -q worker)
 	gcloud compute project-info add-metadata --metadata swarm-manager-token=$(docker swarm join-token -q manager)
 	gcloud compute project-info add-metadata --metadata swarm-ucp-ip=$MANAGER_INTERNAL_IP
-				
+
 	gcloud compute instances add-metadata $(hostname) --metadata docker-install-status=finished --zone $ZONE
 	
 	rm -f docker.lic

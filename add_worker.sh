@@ -23,10 +23,10 @@ gcloud beta compute instances create $NEW_WORKER \
 
 gcloud compute instance-groups unmanaged add-instances swarm --zone "${ZONE}" --instances $NEW_WORKER
 	
-SWARM_STATUS=$(gcloud compute instances describe $NEW_WORKER --zone "${ZONE}" | awk '/docker-install-status/{getline;print $2;}' | awk 'FNR ==1 {print $1}')
-while [ "$SWARM_STATUS" = "pending" ]; do
-	echo $SWARM_STATUS
+WORKER_STATUS=$(gcloud compute instances describe $NEW_WORKER --zone "${ZONE}" | awk '/docker-install-status/{getline;print $2;}' | awk 'FNR ==1 {print $1}')
+while [ "$WORKER_STATUS" = "pending" ]; do
+	echo $WORKER_STATUS
 	sleep 5
-	SWARM_STATUS=$(gcloud compute instances describe $NEW_WORKER --zone "${ZONE}" | awk '/docker-install-status/{getline;print $2;}' | awk 'FNR ==1 {print $1}')
+	WORKER_STATUS=$(gcloud compute instances describe $NEW_WORKER --zone "${ZONE}" | awk '/docker-install-status/{getline;print $2;}' | awk 'FNR ==1 {print $1}')
 done
-echo $SWARM_STATUS
+echo $WORKER_STATUS
