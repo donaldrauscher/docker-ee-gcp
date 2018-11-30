@@ -24,7 +24,7 @@ if [ "${DOCKER_INSTALL_STATUS}" = "pending" ]; then
 
 	curl -fsSL "${DOCKER_EE_URL}/ubuntu/gpg" | sudo apt-key add -
 
-	sudo add-apt-repository "deb [arch=amd64] $DOCKER_EE_URL/ubuntu $(lsb_release -cs) stable-17.06"
+	sudo add-apt-repository "deb [arch=amd64] $DOCKER_EE_URL/ubuntu $(lsb_release -cs) stable-18.09"
 
 	sudo apt-get update
 	sudo apt-get -y install docker-ee
@@ -35,7 +35,7 @@ if [ "${DOCKER_INSTALL_STATUS}" = "pending" ]; then
 		
 	sudo docker container run --rm --name ucp \
 		-v /var/run/docker.sock:/var/run/docker.sock \
-		docker/ucp:3.0.6 install \
+		docker/ucp:3.1.0 install \
 		--admin-username admin \
 		--admin-password password \
 		--host-address $MANAGER_INTERNAL_IP \
